@@ -7,6 +7,13 @@ type: "rule"
 source: |
   type.inbound
   and headers.return_path.domain.domain == 'sendgrid.net'
-  and ilike(subject.subject, '*voicemail*', '*voice message*')
+  and (
+    ilike(subject.subject, '*voicemail*', '*voice message*')
+    or ilike(sender.email.domain.domain, '*voiceext*')
+    or iregex_search(body.plain.raw, '.*voicemail.*', '.*missed a call.*', '.*missed call.*')
+    or iregex_search(body.html.raw, '.*voicemail.*', '.*missed a call.*', '.*missed call.*')
+  )
 tags:
   - "suspicious-headers"
+  - "sendgrid"
+  - "fake-voicemail"
